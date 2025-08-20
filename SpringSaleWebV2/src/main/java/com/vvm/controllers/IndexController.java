@@ -6,6 +6,8 @@ package com.vvm.controllers;
 
 import com.vvm.repositories.impl.CategoryRepositoryImpl;
 import com.vvm.repositories.impl.ProductRespositoriesImpl;
+import com.vvm.services.CategoryServices;
+import com.vvm.services.ProductServices;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,16 +22,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class IndexController {
     @Autowired
-    private CategoryRepositoryImpl cate;
+    private CategoryServices cateService;
     @Autowired
-    private ProductRespositoriesImpl product;
+    private ProductServices productService;
     
     
     @RequestMapping("/")
     public String index(Model model, @RequestParam Map<String, String> params) {
         
-        model.addAttribute("cates", cate.getCategorys());
-        model.addAttribute("product", product.getProducts(params));
+        model.addAttribute("cates", cateService.getCategorys());
+        model.addAttribute("product", productService.getProducts(params));
         return "index";
     }
     

@@ -5,6 +5,7 @@
 package com.vvm.controllers;
 
 import com.vvm.repositories.impl.ProductRespositoriesImpl;
+import com.vvm.services.ProductServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiProductControllers {
     
     @Autowired
-    private ProductRespositoriesImpl productRepo;
+    private ProductServices productRepo;
     
     @DeleteMapping("/products/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

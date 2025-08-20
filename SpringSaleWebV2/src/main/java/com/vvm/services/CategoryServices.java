@@ -1,0 +1,20 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ */
+package com.vvm.services;
+
+import com.vvm.pojo.Category;
+import java.util.List;
+
+/**
+ *
+ * @author admin
+ */
+
+public interface CategoryServices {
+
+    List<Category> getCategorys();
+
+    Category getCateById(int id);
+}

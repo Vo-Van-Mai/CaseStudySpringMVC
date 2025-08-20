@@ -5,6 +5,7 @@
 package com.vvm.repositories.impl;
 
 import com.vvm.pojo.Product;
+import com.vvm.repositories.ProductRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -17,99 +18,97 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author admin
  */
 @Repository
-public class ProductRespositoriesImpl {
+@Transactional
+public class ProductRespositoriesImpl implements ProductRepository{
 
     private static final int PAGE_SIZE = 8;
-    
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
 
     public List<Product> getProducts(Map<String, String> params) {
-        try (Session s = this.factory.getObject().openSession()) {
-            CriteriaBuilder b = s.getCriteriaBuilder();
-            CriteriaQuery<Product> query = b.createQuery(Product.class);
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<Product> query = b.createQuery(Product.class);
 
-            Root root = query.from(Product.class);
-            query.select(root);
+        Root root = query.from(Product.class);
+        query.select(root);
 
-            //locj
-            if (params != null) {
-                List<Predicate> predicates = new ArrayList<>();
-                String kw = params.get("kw");
-                if (kw != null && !kw.isEmpty()) {
-                    predicates.add(b.like(root.get("name"), String.format("%%%s%%", kw)));
-                }
-
-                String fromPrice = params.get("fromPrice");
-                if (fromPrice != null && !fromPrice.isEmpty()) {
-                    predicates.add(b.greaterThanOrEqualTo(root.get("price"), fromPrice));
-                }
-
-                String toPrice = params.get("toPrice");
-                if (toPrice != null && !toPrice.isEmpty()) {
-                    predicates.add(b.lessThanOrEqualTo(root.get("price"), toPrice));
-                }
-
-                String cateId = params.get("cateId");
-                if (cateId != null && !cateId.isEmpty()) {
-                    predicates.add(b.equal(root.get("categoryId").as(Integer.class), cateId));
-                }
-                query.where(predicates);
-
-                String orderBy = params.get("orderBy");
-                if (orderBy != null && !orderBy.isEmpty()) {
-                    query.orderBy(b.desc(root.get(orderBy)));
-                }
+        //locj
+        if (params != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                predicates.add(b.like(root.get("name"), String.format("%%%s%%", kw)));
             }
 
-            //sort
-            Query q = s.createQuery(query);
-            //paginator
-            if (params != null) {
-                String p = params.getOrDefault("page", "1");
-                int page = Integer.parseInt(p);
-
-                int start = (page-1) * PAGE_SIZE;
-                q.setMaxResults(PAGE_SIZE);
-                q.setFirstResult(start);
+            String fromPrice = params.get("fromPrice");
+            if (fromPrice != null && !fromPrice.isEmpty()) {
+                predicates.add(b.greaterThanOrEqualTo(root.get("price"), fromPrice));
             }
-            return q.getResultList();
+
+            String toPrice = params.get("toPrice");
+            if (toPrice != null && !toPrice.isEmpty()) {
+                predicates.add(b.lessThanOrEqualTo(root.get("price"), toPrice));
+            }
+
+            String cateId = params.get("cateId");
+            if (cateId != null && !cateId.isEmpty()) {
+                predicates.add(b.equal(root.get("categoryId").as(Integer.class), cateId));
+            }
+            query.where(predicates);
+
+            String orderBy = params.get("orderBy");
+            if (orderBy != null && !orderBy.isEmpty()) {
+                query.orderBy(b.desc(root.get(orderBy)));
+            }
         }
-    }
-    
-    public void addOrUpdate(Product p){
-        try( Session s = this.factory.getObject().openSession()){
-            s.getTransaction().begin();
-            if(p.getId() != null)
-                s.merge(p);
-            else
-                s.persist(p);
-            
-            s.getTransaction().commit();
+
+        //sort
+        Query q = s.createQuery(query);
+        //paginator
+        if (params != null) {
+            String p = params.getOrDefault("page", "1");
+            int page = Integer.parseInt(p);
+
+            int start = (page - 1) * PAGE_SIZE;
+            q.setMaxResults(PAGE_SIZE);
+            q.setFirstResult(start);
         }
+        return q.getResultList();
     }
-    
-    
-    public Product getProductById (int id){
-        try( Session s = this.factory.getObject().openSession()){
-            return s.find(Product.class, id);
+
+    public void addOrUpdate(Product p) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.getTransaction().begin();
+        if (p.getId() != null) {
+            s.merge(p);
+        } else {
+            s.persist(p);
         }
+
+        s.getTransaction().commit();
     }
-    
-    
-    public void deleteProduct (int id){
-        try( Session s = this.factory.getObject().openSession()){
-            s.getTransaction().begin();
-            Product p = this.getProductById(id);
-            s.remove(p);
-            s.getTransaction().commit();
-        }
+
+    public Product getProductById(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.find(Product.class, id);
+
     }
+
+    public void deleteProduct(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.getTransaction().begin();
+        Product p = this.getProductById(id);
+        s.remove(p);
+        s.getTransaction().commit();
+    }
+
 }
