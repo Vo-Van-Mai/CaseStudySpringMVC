@@ -1,0 +1,64 @@
+
+<!<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" >
+    <head>
+    <th:object th:replace="base :: bt"></th:object>
+</head>
+<body>
+    <div th:replace="base :: menu"></div>
+    <main class="container">
+        <h1>
+            QUẢN LÝ SẢN PHẨM
+        </h1>
+
+        <form method="post" th:object="${product}" th:action="@{/product}" enctype="multipart/form-data"> 
+
+            <div class="form-floating mb-3 mt-3">
+                <input type="text" class="form-control" id="name" th:field="*{name}" placeholder="Nhập tên sản phẩm...">
+                <label for="name">Tên sản phẩm</label>
+            </div>
+            <div class="form-floating mb-3 mt-3">
+                <input type="number" class="form-control" id="price" th:field="*{price}" placeholder="Nhập giá sản phẩm...">
+                <label for="price">Giá sản phẩm</label>
+            </div>
+
+            <div class="form-floating mt-3 mb-3">
+                <select class="form-select mt-2" id="sell" th:field="*{categoryId}">
+                    <option th:each="c : ${cates}" th:value="${c.id}" th:text="${c.name}"></option>
+                </select>
+                <label for="sell" class="form-label">Danh mục</label>
+            </div>
+
+            <div class="form-floating mb-3 mt-3">
+                <input type="file" class="form-control" id="image" th:field="*{file}" >
+                <label for="image">Ảnh sản phẩm</label>
+            </div>
+
+            <div class="form-floating mb-3 mt-3" th:if='${product.image} != null'>
+                <img th:src="${product.image}" width="200" />
+
+            </div>
+
+            <div class="form-floating mb-3 mt-3">
+                <input type="hidden" th:field="*{id}" />                
+                <input type="hidden" th:field="*{image}" />
+
+                <button class="btn btn-success" th:if="${product.id == null }" >
+                    Thêm sản phẩm
+                </button>
+                <button class="btn btn-success" th:unless="${product.id == null }" >
+                    Cập nhật sản phẩm
+                </button>
+            </div>
+
+
+
+        </form>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}">
+
+    </script>
+</body>
+</html>

@@ -87,14 +87,12 @@ public class ProductRespositoriesImpl implements ProductRepository{
 
     public void addOrUpdate(Product p) {
         Session s = this.factory.getObject().getCurrentSession();
-        s.getTransaction().begin();
         if (p.getId() != null) {
             s.merge(p);
         } else {
             s.persist(p);
         }
 
-        s.getTransaction().commit();
     }
 
     public Product getProductById(int id) {

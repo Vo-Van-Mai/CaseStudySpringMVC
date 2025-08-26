@@ -4,9 +4,12 @@
  */
 package com.vvm.services.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.vvm.pojo.Product;
 import com.vvm.repositories.ProductRepository;
 import com.vvm.services.ProductServices;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ public class ProductServicesImpl implements ProductServices{
     
     @Autowired
     private ProductRepository prodRepo;
+    @Autowired
+    private Cloudinary cloudinary;
 
     @Override
     public List<Product> getProducts(Map<String, String> params) {
@@ -29,6 +34,15 @@ public class ProductServicesImpl implements ProductServices{
 
     @Override
     public void addOrUpdate(Product p) {
+        if (!p.getFile().isEmpty()){
+            try {
+                Map res = this.cloudinary.uploader().upload(p.getFile().getBytes(), ObjectUtils.asMap("resource_type", "auto"));
+                p.setImage((String) res.get("secure_url"));
+            } catch (IOException ex) {
+                p.setImage("https://res.cloudinary.com/dxxwcby8l/image/upload/v1647248652/dkeolz3ghc0eino87iec.jpg");
+            }
+        }
+        
         this.prodRepo.addOrUpdate(p);
     }
 
@@ -39,6 +53,7 @@ public class ProductServicesImpl implements ProductServices{
 
     @Override
     public void deleteProduct(int id) {
+        
         this.prodRepo.deleteProduct(id);
     }
     
